@@ -30,8 +30,6 @@ echo "replacing $ALIAS_1 for $ALIAS_2"
 python3 $3'mod_param.py' -ST $ALIAS_1 -RT $ALIAS_2 -F $4$configfile
 echo "$configfile for $2 has been created"
 
-#cd /home/ubuntu/dev/projects/smashcut/cloud-functions/
-
 firebase use $2
 
 chmod 755 $configfile'.sh'
