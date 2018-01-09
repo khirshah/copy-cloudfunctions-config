@@ -1,5 +1,8 @@
 import fileinput
 import argparse
+
+#--------------------------- init ------------------------------------------
+#parst the arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-F', '--fileToSearch',
                         help='fileToSeach',
@@ -13,6 +16,7 @@ parser.add_argument('-RT', '--textToReplace',
 
 args = parser.parse_args()
 
+#--------------------------- text replace ----------------------------------
 with fileinput.FileInput(args.fileToSearch+'.sh', inplace=True) as file:
     for line in file:
         print(line.replace(args.textToSearch, args.textToReplace), end='')
