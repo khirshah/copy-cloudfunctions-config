@@ -7,7 +7,7 @@ Python 3.x
 ## Install 
 ```
 
-git clone git@github.com:khirshah:copy-cloudfunctions-confimashcut.git
+git@github.com:khirshah/copy-cloudfunctions-config.git
 
 ```     
 
