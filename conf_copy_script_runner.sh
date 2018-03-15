@@ -32,27 +32,27 @@ firebase functions:config:get > $CONFIG_FILE'.json'
 echo "...$CONFIG_FILE from $1 has been loaded"
 
 ALIAS_1=$SOURCE_ENV
-if [ $4 != "" ]; then
+if [ ! -z "$4" ] && [ $4 != "" ]; then
   ALIAS_1=$4
 fi
 
 ALIAS_2=$TARGET_ENV
-if [ $5 != "" ]; then
+if [ ! -z "$5" ] && [ $5 != "" ]; then
   ALIAS_2=$5
 fi
 
 echo "...Preparing configfile for environment $TARGET_ENV"
-python3 $DIR'convert_nest_dict.py' -f $SOURCE_DIR$CONFIG_FILE
+python3 $DIR/'convert_nest_dict.py' -f $SOURCE_DIR/$CONFIG_FILE
 
 echo "...Saving backup config scrip"
-cp $SOURCE_DIR$CONFIG_FILE rollback-$SOURCE_DIR$CONFIG_FILE
+cp $SOURCE_DIR/$CONFIG_FILE.sh $SOURCE_DIR/rollback-$CONFIG_FILE.sh
 
 echo "...Replacing $ALIAS_1 for $ALIAS_2"
-python3 $DIR'mod_param.py' -ST $ALIAS_1 -RT $ALIAS_2 -F $SOURCE_DIR$CONFIG_FILE
+python3 $DIR/'mod_param.py' -ST $ALIAS_1 -RT $ALIAS_2 -F $SOURCE_DIR/$CONFIG_FILE
 echo "...Configfile for $TARGET_ENV has been created"
 
 firebase use $TARGET_ENV
 
-chmod 755 $CONFIG_FILE'.sh'
+chmod 755 $CONFIG_FILE.sh
 echo "...Updating $TARGET_ENV"
-./$CONFIG_FILE'.sh'
+./$CONFIG_FILE.sh
