@@ -1,41 +1,55 @@
 #!/bin/bash 
-echo "copies config variables from one cloud-functions environment to another"
+echo "Copies functions:config from one cloud-functions environment to another"
 echo "--------------------------------"
-echo "checking arguments"
-if [ $1 == "" || $2 == "" || $3 == "" ]; then
-  echo "cannot find variable"
+
+echo "...Checking arguments"
+if [ $1 == "" || $2 == "" ]; then
+  echo "Cannot find arguments for Firebase ENVs"
+  echo "Usage:"
+  echo "  conf_copy_script_runner.sh source target [firebase_project_folder] [source_alias] [target_alias]"
   exit 1
+fi
+
+SOURCE_ENV=$1
+TARGET_ENV=$2
+
+if [ $3 == "" ]; then
+  SOURCE_DIR="."
+else
+  SOURCE_DIR=$3
 fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd $3
-echo "entering $3 folder"
-firebase use $1
-configfile=$1'_to_'$2-$(date "+%b_%d_%Y_%H_%M_%S")
-firebase functions:config:get > $configfile'.json'
-echo "$configfile from $1 has been loaded"
+cd $SOURCE_DIR
+echo "...Entering $SOURCE_DIR folder"
+firebase use $SOURCE_ENV
+CONFIG_FILE=$SOURCE_ENV'_to_'$TARGET_ENV-$(date "+%b_%d_%Y_%H_%M_%S")
+firebase functions:config:get > $CONFIG_FILE'.json'
+echo "...$CONFIG_FILE from $1 has been loaded"
 
-ALIAS_1=$1
-if [ $1 == 'dev' ]; then
-  ALIAS_1='a23d2'
+ALIAS_1=$SOURCE_ENV
+if [ $4 != "" ]; then
+  ALIAS_1=$4
 fi
 
-ALIAS_2=$2
-if [ $2 == 'dev' ]; then
-  ALIAS_2='a23d2'
+ALIAS_2=$TARGET_ENV
+if [ $5 != "" ]; then
+  ALIAS_2=$5
 fi
 
-echo "preparing configfile for environment $2"
-python3 $DIR'convert_nest_dict.py' -f $3$configfile
-echo "saving backup config scrip"
-cp $3$configfile rollback-$3$configfile
-echo "replacing $ALIAS_1 for $ALIAS_2"
-python3 $DIR'mod_param.py' -ST $ALIAS_1 -RT $ALIAS_2 -F $3$configfile
-echo "$configfile for $2 has been created"
+echo "...Preparing configfile for environment $TARGET_ENV"
+python3 $DIR'convert_nest_dict.py' -f $SOURCE_DIR$CONFIG_FILE
 
-firebase use $2
+echo "...Saving backup config scrip"
+cp $SOURCE_DIR$CONFIG_FILE rollback-$SOURCE_DIR$CONFIG_FILE
 
-chmod 755 $configfile'.sh'
-echo "updating $2"
-./$configfile'.sh'
+echo "...Replacing $ALIAS_1 for $ALIAS_2"
+python3 $DIR'mod_param.py' -ST $ALIAS_1 -RT $ALIAS_2 -F $SOURCE_DIR$CONFIG_FILE
+echo "...Configfile for $TARGET_ENV has been created"
+
+firebase use $TARGET_ENV
+
+chmod 755 $CONFIG_FILE'.sh'
+echo "...Updating $TARGET_ENV"
+./$CONFIG_FILE'.sh'
