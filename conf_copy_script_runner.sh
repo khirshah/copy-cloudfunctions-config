@@ -1,12 +1,15 @@
 #!/bin/bash 
+clear
 echo "Copies functions:config from one cloud-functions environment to another"
 echo "--------------------------------"
-
+echo
 echo "...Checking arguments"
-if [ $1 == "" || $2 == "" ]; then
-  echo "Cannot find arguments for Firebase ENVs"
-  echo "Usage:"
-  echo "  conf_copy_script_runner.sh source target [firebase_project_folder] [source_alias] [target_alias]"
+echo
+
+if [ -z "$1" ] || [ -z "$2" ]; then 
+  echo 'Cannot find arguments for Firebase ENVs'
+  echo 'Usage:'
+  echo '  conf_copy_script_runner.sh source target [firebase_project_folder] [source_alias] [target_alias]'
   exit 1
 fi
 
