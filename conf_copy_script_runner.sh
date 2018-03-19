@@ -1,5 +1,6 @@
 #!/bin/bash 
 clear
+echo
 echo "Copies functions:config from one cloud-functions environment to another"
 echo "--------------------------------"
 echo
@@ -24,33 +25,41 @@ fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd $SOURCE_DIR
 echo "...Entering $SOURCE_DIR folder"
+cd $SOURCE_DIR
+
+echo "...Creating backup for $TARGET_ENV"
+firebase use $TARGET_ENV
+CONFIG_FILE=$TARGET_ENV-$(date "+%b_%d_%Y_%H_%M_%S")
+firebase functions:config:get > $CONFIG_FILE'.json'
+echo "...Backup for $TARGET_ENV has been created: $CONFIG_FILE"
+
+echo "...Pulling config from $SOURCE_ENV"
 firebase use $SOURCE_ENV
 CONFIG_FILE=$SOURCE_ENV'_to_'$TARGET_ENV-$(date "+%b_%d_%Y_%H_%M_%S")
 firebase functions:config:get > $CONFIG_FILE'.json'
-echo "...$CONFIG_FILE from $1 has been loaded"
+echo "...Config from $SOURCE_ENV has been loaded: $CONFIG_FILE"
 
 ALIAS_1=$SOURCE_ENV
 if [ ! -z "$4" ] && [ $4 != "" ]; then
+  echo "...Setting up ALIAS: $4 for $SOURCE_ENV"
   ALIAS_1=$4
 fi
 
 ALIAS_2=$TARGET_ENV
 if [ ! -z "$5" ] && [ $5 != "" ]; then
+  echo "...Setting up ALIAS: $5 for $TARGET_ENV"
   ALIAS_2=$5
 fi
 
 echo "...Preparing configfile for environment $TARGET_ENV"
 python3 $DIR/'convert_nest_dict.py' -f $SOURCE_DIR/$CONFIG_FILE
 
-echo "...Saving backup config scrip"
-cp $SOURCE_DIR/$CONFIG_FILE.sh $SOURCE_DIR/rollback-$CONFIG_FILE.sh
-
-echo "...Replacing $ALIAS_1 for $ALIAS_2"
+echo "...Replacing $ALIAS_1 with $ALIAS_2"
 python3 $DIR/'mod_param.py' -ST $ALIAS_1 -RT $ALIAS_2 -F $SOURCE_DIR/$CONFIG_FILE
 echo "...Configfile for $TARGET_ENV has been created"
 
+echo "...Loading new config into $TARGET_ENV"
 firebase use $TARGET_ENV
 
 chmod 755 $CONFIG_FILE.sh
