@@ -14,7 +14,7 @@ git@github.com:khirshah/copy-cloudfunctions-config.git
 ## Run
 ```
 
-path-to-copy-cloudfunctions-config/conf_copy_script_runner.sh $1 $2 $3 $4
+path-to-copy-cloudfunctions-config/conf_copy_script_runner.sh source target [firebase_project_folder] [source_alias] [target_alias]
 
 ```
 
@@ -22,6 +22,9 @@ path-to-copy-cloudfunctions-config/conf_copy_script_runner.sh $1 $2 $3 $4
 ```
 $1 source environment
 $2 target environment
-$3 location of files
-$4 location of firebase environments
+$3 location of firebase project folder
+$4 source alias
+$5 target alias
 ```
+
+eg.: conf_copy_script_runner.sh source target [firebase_project_folder] [source_alias] [target_alias]
